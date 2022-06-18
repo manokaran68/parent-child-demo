@@ -1,19 +1,16 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import React, { useReducer, useState } from "react";
+import React, { useReducer, useState, ChangeEvent } from "react";
 import styles from "../styles/Home.module.css";
 
-type User = Array<{ Name: string; Value: string }>;
+type Record = { Name: string; Value: string };
+type User = Array<Record>;
 const userDetails: User = [
   { Name: "First Name", Value: "John" },
   { Name: "Last Name", Value: "P" },
   { Name: "Email", Value: "Test@gmail" },
 ];
-type ActionType =
-  | { Name: "First Name"; Value: string }
-  | { Name: "Last Name"; Value: string }
-  | { Name: "Email"; Value: string };
 
 function Child({
   Name,
@@ -22,9 +19,9 @@ function Child({
 }: {
   Name: string;
   Value: string;
-  onChange: ({ Name, Value }: { Name: string; Value: string }) => void;
+  onChange: ({ Name, Value }: Record) => void;
 }) {
-  function changeHandler(event: React.ChangeEvent<HTMLInputElement>) {
+  function changeHandler(event: ChangeEvent<HTMLInputElement>) {
     onChange({ Name, Value: event.target.value });
   }
   return (
@@ -36,7 +33,7 @@ function Child({
   );
 }
 
-function reducer(state: User, action: ActionType) {
+function reducer(state: User, action: Record) {
   state = state.map((i) => ({ ...i }));
   let record = state.find((i) => i.Name === action.Name);
   if (record?.Value) {
@@ -49,7 +46,7 @@ const Home: NextPage = () => {
   const [userState, setUserState] = useReducer(reducer, userDetails);
   const [user, setUser] = useState(userDetails);
 
-  function onChange(data: any) {
+  function onChange(data: Record) {
     setUserState(data);
   }
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
