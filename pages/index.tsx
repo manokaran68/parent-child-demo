@@ -1,7 +1,6 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import Image from "next/image";
-import React, { useReducer, useState, ChangeEvent } from "react";
+import { useReducer, useState, ChangeEvent, FormEvent } from "react";
 import styles from "../styles/Home.module.css";
 
 type Record = { Name: string; Value: string };
@@ -46,13 +45,10 @@ const Home: NextPage = () => {
   const [userState, setUserState] = useReducer(reducer, userDetails);
   const [user, setUser] = useState(userDetails);
 
-  function onChange(data: Record) {
-    setUserState(data);
-  }
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setUser(userState);
-  };
+  }
 
   return (
     <div className={styles.container}>
@@ -68,7 +64,7 @@ const Home: NextPage = () => {
         ))}
         <form onSubmit={onSubmit}>
           {user.map((d) => (
-            <Child key={d.Name} {...d} onChange={onChange} />
+            <Child key={d.Name} {...d} onChange={setUserState} />
           ))}
           <button type="submit">Submit</button>
         </form>
