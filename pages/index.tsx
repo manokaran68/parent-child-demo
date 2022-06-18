@@ -4,13 +4,16 @@ import Image from "next/image";
 import React, { useReducer, useState } from "react";
 import styles from "../styles/Home.module.css";
 
-const userDetails: Array<{ Name: string; Value: string }> = [
+type User = Array<{ Name: string; Value: string }>;
+const userDetails: User = [
   { Name: "First Name", Value: "John" },
   { Name: "Last Name", Value: "P" },
   { Name: "Email", Value: "Test@gmail" },
 ];
-
-type OnChange = (Name: string, Value: string) => void;
+type ActionType =
+  | { Name: "First Name"; Value: string }
+  | { Name: "Last Name"; Value: string }
+  | { Name: "Email"; Value: string };
 
 function Child({
   Name,
@@ -19,10 +22,10 @@ function Child({
 }: {
   Name: string;
   Value: string;
-  onChange: OnChange;
+  onChange: ({ Name, Value }: { Name: string; Value: string }) => void;
 }) {
   function changeHandler(event: React.ChangeEvent<HTMLInputElement>) {
-    onChange(Name, event.target.value);
+    onChange({ Name, Value: event.target.value });
   }
   return (
     <div>
@@ -33,35 +36,25 @@ function Child({
   );
 }
 
+function reducer(state: User, action: ActionType) {
+  state = state.map((i) => ({ ...i }));
+  let record = state.find((i) => i.Name === action.Name);
+  if (record?.Value) {
+    record.Value = action.Value;
+  }
+  return state;
+}
+
 const Home: NextPage = () => {
+  const [userState, setUserState] = useReducer(reducer, userDetails);
   const [user, setUser] = useState(userDetails);
-  const [firstName, setFirstName] = useState(
-    userDetails.find((d) => d.Name === "First Name")?.Value || ""
-  );
-  const [lastName, setLastName] = useState(
-    userDetails.find((d) => d.Name === "Last Name")?.Value || ""
-  );
-  const [email, setEmail] = useState(
-    userDetails.find((d) => d.Name === "Email")?.Value || ""
-  );
 
-  const onChange = (Name: string, Value: string) => {
-    if (Name === "First Name") {
-      setFirstName(Value);
-    } else if (Name === "Last Name") {
-      setLastName(Value);
-    } else if (Name === "Email") {
-      setEmail(Value);
-    }
-  };
-
+  function onChange(data: any) {
+    setUserState(data);
+  }
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setUser([
-      { Name: "First Name", Value: firstName },
-      { Name: "Last Name", Value: lastName },
-      { Name: "Email", Value: email },
-    ]);
+    setUser(userState);
   };
 
   return (
